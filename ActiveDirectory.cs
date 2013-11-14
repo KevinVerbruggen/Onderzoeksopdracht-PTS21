@@ -291,7 +291,7 @@ namespace FileShare
             SearchResultCollection results = dsrc.FindAll();
             foreach (SearchResult result in results) 
             {
-                UserToString(result.Properties["samAccountName"].ToString());
+                Console.Write(UserToString(result.Properties["samAccountName"].ToString()));
             }
         }
         
