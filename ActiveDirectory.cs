@@ -57,7 +57,7 @@ namespace FileShare
 
         // voor het toevoegen van een user
 
-        public void CreateUserAccount(string ldapPath, string userName, string userPassword)
+        public static void CreateUserAccount(string ldapPath, string userName, string userPassword)
         {
             if (authentic)
             {
@@ -68,7 +68,7 @@ namespace FileShare
                     DirectoryEntry dirEntry = new DirectoryEntry(connectionPrefix);
                     DirectoryEntry newUser = dirEntry.Children.Add
                         ("CN=" + userName, "user");
-                    newUser.Properties["samAccountName"].Value = userName;
+                    newUser.Properties["SAMAccountName"].Value = userName;
                     newUser.CommitChanges();
                     oGUID = newUser.Guid.ToString();
 
@@ -91,7 +91,7 @@ namespace FileShare
 
         // voor het verwijderen van een user
 
-        public void DeleteUserAccount(string ldapPath, string userDn)
+        public void DeleteUserAccount(string ldapPath, string username)
         {
             if (authentic)
             {
@@ -99,8 +99,8 @@ namespace FileShare
                 {
                     DirectoryEntry ent = new DirectoryEntry("LDAP://" + domain);
                     DirectorySearcher dsrc = new DirectorySearcher(ent);
-                    dsrc.Filter = string.Format("(&(objectClass=user)(objectCategory=person)(SAMAccountName=" + userDn + "))");
-                    DirectoryEntry user = ent.Children.Find("CN=" + userDn, "objectClass=user");
+                    dsrc.Filter = string.Format("(&(objectClass=user)(objectCategory=person)(SAMAccountName=" + username + "))");
+                    DirectoryEntry user = ent.Children.Find("CN=" + username, "objectClass=user");
                     ent.Children.Remove(user);
                     ent.Close();
                     user.Close();
@@ -108,7 +108,7 @@ namespace FileShare
                 }
                 else
                 {
-                    Console.WriteLine(userDn + " bestaat niet");
+                    Console.WriteLine(username + " bestaat niet");
                 }
             }
             else 
@@ -119,16 +119,11 @@ namespace FileShare
 
         // voor het aanpassen/updaten van een user
 
-        public void EditUserAccount(string ldapPath, string userDn) 
+        public void EditUserAccount(string ldapPath, string username, string property, string newValue) 
         {
             if (authentic)
             {
-                DirectoryEntry user = LoadUser(userDn);
-                Console.WriteLine(UserToString(userDn));
-                Console.Write("\nAan te passen waarde: ");
-                string property = Console.ReadLine();
-                Console.Write("\nNieuwe waarde: ");
-                string newValue = Console.ReadLine();
+                DirectoryEntry user = LoadUser(username);
                 user.Properties[property].Value = newValue;
                 user.CommitChanges();
             }
@@ -140,7 +135,7 @@ namespace FileShare
 
         // voor het toevoegen van een groep
 
-        public void Create(string ouPath, string name)
+        public static void Create(string ouPath, string name)
         {
             if (authentic)
             {
@@ -150,7 +145,7 @@ namespace FileShare
                     {
                         DirectoryEntry entry = new DirectoryEntry("LDAP://" + domain + "/" + ouPath);
                         DirectoryEntry group = entry.Children.Add("CN=" + name, "group");
-                        group.Properties["sAmAccountName"].Value = name;
+                        group.Properties["SAMAccountName"].Value = name;
                         group.CommitChanges();
                     }
                     catch (Exception e)
@@ -168,7 +163,7 @@ namespace FileShare
 
         // voor het verwijderen van een groep 
 
-        public void Delete(string ouPath, string groupPath)
+        public static void Delete(string ouPath, string groupPath)
         {
             if (authentic)
             {
@@ -199,7 +194,7 @@ namespace FileShare
 
         // voor het toevoegen van een user aan een groep
 
-        public void AddToGroup(string userDn, string groupDn)
+        public static void AddToGroup(string userDn, string groupDn)
         {
             if (authentic)
             {
@@ -223,7 +218,7 @@ namespace FileShare
 
         // voor het verwijderen van een user uit een groep (dus alleen uit een groep halen)
 
-        public void RemoveUserFromGroup(string userDn, string groupDn)
+        public static void RemoveUserFromGroup(string userDn, string groupDn)
         {
             if (authentic)
             {
@@ -248,14 +243,14 @@ namespace FileShare
 
         // laad een user uit de AD, zodat die in andere functies gebruikt kan worden
         
-        public DirectoryEntry LoadUser(string userDn) 
+        public static DirectoryEntry LoadUser(string username) 
         {
             if (authentic)
             {
                 DirectoryEntry ent = new DirectoryEntry("LDAP://" + domain);
                 DirectorySearcher dsrc = new DirectorySearcher(ent);
-                dsrc.Filter = string.Format("(&(objectClass=user)(objectCategory=person)(SAMAccountName=" + userDn + "))");
-                return ent.Children.Find("CN=" + userDn, "objectClass=user");
+                dsrc.Filter = string.Format("(&(objectClass=user)(objectCategory=person)(SAMAccountName= " + username + "))");
+                return dsrc.FindOne().GetDirectoryEntry();
             }
             else 
             {
@@ -266,13 +261,12 @@ namespace FileShare
 
         // user als string weergeven
 
-        public string UserToString(string userDn) 
+        public static string UserToString(string username) 
         {
             if (authentic)
             {
-                DirectoryEntry user = LoadUser(userDn);
-                string userinfo = "Accountnaam = " + userDn + "\nNaam = " + user.Properties["DisplayName"];
-                return userinfo;
+                DirectoryEntry user = LoadUser(username);
+                return "Accountnaam = " + username + "\nNaam = " + user.Properties["DisplayName"] + "\nWachtwoord = " + user.Properties["password"];
             }
             else 
             {
@@ -283,7 +277,7 @@ namespace FileShare
 
         // vind users
 
-        public void FindUser(string searchquery) 
+        public static void FindUser(string searchquery) 
         {
             DirectoryEntry ent = new DirectoryEntry("LDAP://" + domain);
             DirectorySearcher dsrc = new DirectorySearcher(ent);
@@ -291,7 +285,7 @@ namespace FileShare
             SearchResultCollection results = dsrc.FindAll();
             foreach (SearchResult result in results) 
             {
-                Console.Write(UserToString(result.Properties["samAccountName"].ToString()));
+                Console.Write(UserToString(result.Properties["SAMAccountName"].ToString()));
             }
         }
         
