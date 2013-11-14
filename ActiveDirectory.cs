@@ -282,11 +282,19 @@ namespace FileShare
         }
 
         // vind users
-        /*public List<DirectoryEntry> FindUser(string searchquery) 
-        {
 
+        public void FindUser(string searchquery) 
+        {
+            DirectoryEntry ent = new DirectoryEntry("LDAP://" + domain);
+            DirectorySearcher dsrc = new DirectorySearcher(ent);
+            dsrc.Filter = string.Format("(&(objectClass=user)(objectCategory=person)(SAMAccountName= *" + searchquery + "*))");
+            SearchResultCollection results = dsrc.FindAll();
+            foreach (SearchResult result in results) 
+            {
+                UserToString(result.Properties["samAccountName"].ToString());
+            }
         }
-        */
+        
 
     }
 }
