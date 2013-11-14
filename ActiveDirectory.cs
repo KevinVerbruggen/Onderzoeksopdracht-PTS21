@@ -9,9 +9,18 @@ namespace FileShare
 {
     class ActiveDirectory
     {
-        public static bool authentic = false;
+        // algemene variabelen
+
+        private static bool authentic = false;
 
         private static string domain;
+
+        // properties
+
+        public static bool Authentic {
+            get { return authentic; }
+            set { authentic = value; }
+        }
 
         // om te kijken of iets bestaat (handig als je users aan groepen toevoegd)
 

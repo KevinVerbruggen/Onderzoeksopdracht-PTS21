@@ -21,9 +21,9 @@ namespace FileShare
         {
             if (tbGebruikersnaam.TextLength > 0 && tbWachtwoord.TextLength > 0)
             {
-                ActiveDirectory.authentic = ActiveDirectory.Authenticate(tbGebruikersnaam.Text, tbWachtwoord.Text, tbDomain.Text);
+                ActiveDirectory.Authentic = ActiveDirectory.Authenticate(tbGebruikersnaam.Text, tbWachtwoord.Text, tbDomain.Text);
 
-                if (ActiveDirectory.authentic)
+                if (ActiveDirectory.Authentic)
                 {
                     this.Hide();
                 }
