@@ -9,6 +9,7 @@ namespace FileShare
 {
     class ActiveDirectory
     {
+        public static bool authentic = false;
 
         private static string domain;
 
@@ -40,54 +41,70 @@ namespace FileShare
             return authentic;
         }
 
+        public static void AuthenticateFailed() 
+        {
+            Console.WriteLine("Niet ingelogd.");
+        }
+
         // voor het toevoegen van een user
 
-        public string CreateUserAccount(string ldapPath, string userName,
-            string userPassword)
+        public void CreateUserAccount(string ldapPath, string userName, string userPassword)
         {
-            string oGUID = string.Empty;
-            try
+            if (authentic)
             {
-                
-                string connectionPrefix = "LDAP://" + domain + "/" + ldapPath;
-                DirectoryEntry dirEntry = new DirectoryEntry(connectionPrefix);
-                DirectoryEntry newUser = dirEntry.Children.Add
-                    ("CN=" + userName, "user");
-                newUser.Properties["samAccountName"].Value = userName;
-                newUser.CommitChanges();
-                oGUID = newUser.Guid.ToString();
+                string oGUID = string.Empty;
+                try
+                {
+                    string connectionPrefix = "LDAP://" + domain + "/" + ldapPath;
+                    DirectoryEntry dirEntry = new DirectoryEntry(connectionPrefix);
+                    DirectoryEntry newUser = dirEntry.Children.Add
+                        ("CN=" + userName, "user");
+                    newUser.Properties["samAccountName"].Value = userName;
+                    newUser.CommitChanges();
+                    oGUID = newUser.Guid.ToString();
 
-                newUser.Invoke("SetPassword", new object[] { userPassword });
-                newUser.CommitChanges();
-                dirEntry.Close();
-                newUser.Close();
+                    newUser.Invoke("SetPassword", new object[] { userPassword });
+                    newUser.CommitChanges();
+                    dirEntry.Close();
+                    newUser.Close();
+                }
+                catch (System.DirectoryServices.DirectoryServicesCOMException E)
+                {
+                    Console.WriteLine(E);
+
+                }
             }
-            catch (System.DirectoryServices.DirectoryServicesCOMException E)
+            else 
             {
-                Console.WriteLine(E);
-
+                AuthenticateFailed();
             }
-            return oGUID;
         }
 
         // voor het verwijderen van een user
 
-        public void DeleteUserAccount(string ldapPath, string userDn) 
-        { 
-            if (!DirectoryEntry.Exists("LDAP://" + domain + "/" + ldapPath))
+        public void DeleteUserAccount(string ldapPath, string userDn)
+        {
+            if (authentic)
             {
-                DirectoryEntry ent = new DirectoryEntry("LDAP://" + domain);
-                DirectorySearcher dsrc = new DirectorySearcher(ent);
-                dsrc.Filter = string.Format("(&(objectClass=user)(objectCategory=person)(SAMAccountName=" + userDn + "))");
-                DirectoryEntry user = ent.Children.Find("CN=" + userDn,"objectClass=user");
-                ent.Children.Remove(user);
-                ent.Close();
-                user.Close();
-                dsrc.Dispose();
+                if (!DirectoryEntry.Exists("LDAP://" + domain + "/" + ldapPath))
+                {
+                    DirectoryEntry ent = new DirectoryEntry("LDAP://" + domain);
+                    DirectorySearcher dsrc = new DirectorySearcher(ent);
+                    dsrc.Filter = string.Format("(&(objectClass=user)(objectCategory=person)(SAMAccountName=" + userDn + "))");
+                    DirectoryEntry user = ent.Children.Find("CN=" + userDn, "objectClass=user");
+                    ent.Children.Remove(user);
+                    ent.Close();
+                    user.Close();
+                    dsrc.Dispose();
+                }
+                else
+                {
+                    Console.WriteLine(userDn + " bestaat niet");
+                }
             }
-            else
+            else 
             {
-                Console.WriteLine(userDn + " bestaat niet");
+                AuthenticateFailed();
             }
         }
 
@@ -95,58 +112,79 @@ namespace FileShare
 
         public void EditUserAccount(string ldapPath, string userDn) 
         {
-            DirectoryEntry user = LoadUser(userDn);
-            Console.WriteLine(UserToString(userDn));
-            Console.Write("\nAan te passen waarde: ");
-            string property = Console.ReadLine();
-            Console.Write("\nNieuwe waarde: ");
-            string newValue = Console.ReadLine();
-            user.Properties[property].Value = newValue;
-            user.CommitChanges();
+            if (authentic)
+            {
+                DirectoryEntry user = LoadUser(userDn);
+                Console.WriteLine(UserToString(userDn));
+                Console.Write("\nAan te passen waarde: ");
+                string property = Console.ReadLine();
+                Console.Write("\nNieuwe waarde: ");
+                string newValue = Console.ReadLine();
+                user.Properties[property].Value = newValue;
+                user.CommitChanges();
+            }
+            else 
+            {
+                AuthenticateFailed();
+            }
         }
 
         // voor het toevoegen van een groep
 
         public void Create(string ouPath, string name)
         {
-            if (!DirectoryEntry.Exists("LDAP://" + domain  +"/CN=" + name + "," + ouPath))
+            if (authentic)
             {
-                try
+                if (!DirectoryEntry.Exists("LDAP://" + domain + "/CN=" + name + "," + ouPath))
                 {
-                    DirectoryEntry entry = new DirectoryEntry("LDAP://" + domain + "/" + ouPath);
-                    DirectoryEntry group = entry.Children.Add("CN=" + name, "group");
-                    group.Properties["sAmAccountName"].Value = name;
-                    group.CommitChanges();
+                    try
+                    {
+                        DirectoryEntry entry = new DirectoryEntry("LDAP://" + domain + "/" + ouPath);
+                        DirectoryEntry group = entry.Children.Add("CN=" + name, "group");
+                        group.Properties["sAmAccountName"].Value = name;
+                        group.CommitChanges();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message.ToString());
+                    }
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message.ToString());
-                }
+                else { Console.WriteLine(ouPath + " bestaat al"); }
             }
-            else { Console.WriteLine(ouPath + " bestaat al"); }
+            else 
+            {
+                AuthenticateFailed();
+            }
         }
 
         // voor het verwijderen van een groep 
 
         public void Delete(string ouPath, string groupPath)
         {
-            if (DirectoryEntry.Exists("LDAP://" + domain + "/" + groupPath))
+            if (authentic)
             {
-                try
+                if (DirectoryEntry.Exists("LDAP://" + domain + "/" + groupPath))
                 {
-                    DirectoryEntry entry = new DirectoryEntry("LDAP://" + domain + "/" + ouPath);
-                    DirectoryEntry group = new DirectoryEntry("LDAP://" + domain + "/" + groupPath);
-                    entry.Children.Remove(group);
-                    group.CommitChanges();
+                    try
+                    {
+                        DirectoryEntry entry = new DirectoryEntry("LDAP://" + domain + "/" + ouPath);
+                        DirectoryEntry group = new DirectoryEntry("LDAP://" + domain + "/" + groupPath);
+                        entry.Children.Remove(group);
+                        group.CommitChanges();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message.ToString());
+                    }
                 }
-                catch (Exception e)
+                else
                 {
-                    Console.WriteLine(e.Message.ToString());
+                    Console.WriteLine(ouPath + " bestaat niet in deze groep");
                 }
             }
-            else
+            else 
             {
-                Console.WriteLine(ouPath + " bestaat niet in deze groep");
+                AuthenticateFailed();
             }
         }
 
@@ -154,16 +192,23 @@ namespace FileShare
 
         public void AddToGroup(string userDn, string groupDn)
         {
-            try
+            if (authentic)
             {
-                DirectoryEntry dirEntry = new DirectoryEntry("LDAP://" + domain + "/" + groupDn);
-                dirEntry.Properties["member"].Add(userDn);
-                dirEntry.CommitChanges();
-                dirEntry.Close();
+                try
+                {
+                    DirectoryEntry dirEntry = new DirectoryEntry("LDAP://" + domain + "/" + groupDn);
+                    dirEntry.Properties["member"].Add(userDn);
+                    dirEntry.CommitChanges();
+                    dirEntry.Close();
+                }
+                catch (System.DirectoryServices.DirectoryServicesCOMException)
+                {
+
+                }
             }
-            catch (System.DirectoryServices.DirectoryServicesCOMException)
+            else 
             {
-                
+                AuthenticateFailed();
             }
         }
 
@@ -171,17 +216,24 @@ namespace FileShare
 
         public void RemoveUserFromGroup(string userDn, string groupDn)
         {
-            try
+            if (authentic)
             {
-                DirectoryEntry dirEntry = new DirectoryEntry("LDAP://" + domain + "/" + groupDn);
-                dirEntry.Properties["member"].Remove(userDn);
-                dirEntry.CommitChanges();
-                dirEntry.Close();
-            }
-            catch (System.DirectoryServices.DirectoryServicesCOMException E)
-            {
-                Console.WriteLine(E);
+                try
+                {
+                    DirectoryEntry dirEntry = new DirectoryEntry("LDAP://" + domain + "/" + groupDn);
+                    dirEntry.Properties["member"].Remove(userDn);
+                    dirEntry.CommitChanges();
+                    dirEntry.Close();
+                }
+                catch (System.DirectoryServices.DirectoryServicesCOMException E)
+                {
+                    Console.WriteLine(E);
 
+                }
+            }
+            else 
+            {
+                AuthenticateFailed();
             }
         }
 
@@ -189,19 +241,35 @@ namespace FileShare
         
         public DirectoryEntry LoadUser(string userDn) 
         {
-            DirectoryEntry ent = new DirectoryEntry("LDAP://" + domain);
-            DirectorySearcher dsrc = new DirectorySearcher(ent);
-            dsrc.Filter = string.Format("(&(objectClass=user)(objectCategory=person)(SAMAccountName=" + userDn + "))");
-            return ent.Children.Find("CN=" + userDn, "objectClass=user");
+            if (authentic)
+            {
+                DirectoryEntry ent = new DirectoryEntry("LDAP://" + domain);
+                DirectorySearcher dsrc = new DirectorySearcher(ent);
+                dsrc.Filter = string.Format("(&(objectClass=user)(objectCategory=person)(SAMAccountName=" + userDn + "))");
+                return ent.Children.Find("CN=" + userDn, "objectClass=user");
+            }
+            else 
+            {
+                AuthenticateFailed();
+                return null;
+            }
         }
 
         // user als string weergeven
 
         public string UserToString(string userDn) 
         {
-            DirectoryEntry user = LoadUser(userDn);
-            string userinfo = "Accountnaam = " + userDn + "\nNaam = " + user.Properties["DisplayName"];
-            return userinfo;
+            if (authentic)
+            {
+                DirectoryEntry user = LoadUser(userDn);
+                string userinfo = "Accountnaam = " + userDn + "\nNaam = " + user.Properties["DisplayName"];
+                return userinfo;
+            }
+            else 
+            {
+                AuthenticateFailed();
+                return "";
+            }
         }
 
         // vind users

@@ -33,8 +33,8 @@
             this.tbWachtwoord = new System.Windows.Forms.TextBox();
             this.lbGebruikersnaam = new System.Windows.Forms.Label();
             this.lbWachtwoord = new System.Windows.Forms.Label();
-            this.tbAdres = new System.Windows.Forms.TextBox();
-            this.lbAdres = new System.Windows.Forms.Label();
+            this.tbDomain = new System.Windows.Forms.TextBox();
+            this.lbDomain = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // btnLogin
@@ -80,30 +80,30 @@
             this.lbWachtwoord.TabIndex = 4;
             this.lbWachtwoord.Text = "Wachtwoord";
             // 
-            // tbAdres
+            // tbDomain
             // 
-            this.tbAdres.Location = new System.Drawing.Point(119, 85);
-            this.tbAdres.Name = "tbAdres";
-            this.tbAdres.PasswordChar = '*';
-            this.tbAdres.Size = new System.Drawing.Size(138, 20);
-            this.tbAdres.TabIndex = 5;
+            this.tbDomain.Location = new System.Drawing.Point(119, 85);
+            this.tbDomain.Name = "tbDomain";
+            this.tbDomain.PasswordChar = '*';
+            this.tbDomain.Size = new System.Drawing.Size(138, 20);
+            this.tbDomain.TabIndex = 5;
             // 
-            // lbAdres
+            // lbDomain
             // 
-            this.lbAdres.AutoSize = true;
-            this.lbAdres.Location = new System.Drawing.Point(13, 88);
-            this.lbAdres.Name = "lbAdres";
-            this.lbAdres.Size = new System.Drawing.Size(34, 13);
-            this.lbAdres.TabIndex = 6;
-            this.lbAdres.Text = "Adres";
+            this.lbDomain.AutoSize = true;
+            this.lbDomain.Location = new System.Drawing.Point(13, 88);
+            this.lbDomain.Name = "lbDomain";
+            this.lbDomain.Size = new System.Drawing.Size(43, 13);
+            this.lbDomain.TabIndex = 6;
+            this.lbDomain.Text = "Domein";
             // 
             // Login
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 147);
-            this.Controls.Add(this.lbAdres);
-            this.Controls.Add(this.tbAdres);
+            this.Controls.Add(this.lbDomain);
+            this.Controls.Add(this.tbDomain);
             this.Controls.Add(this.lbWachtwoord);
             this.Controls.Add(this.lbGebruikersnaam);
             this.Controls.Add(this.tbWachtwoord);
@@ -127,7 +127,7 @@
         private System.Windows.Forms.TextBox tbWachtwoord;
         private System.Windows.Forms.Label lbGebruikersnaam;
         private System.Windows.Forms.Label lbWachtwoord;
-        private System.Windows.Forms.TextBox tbAdres;
-        private System.Windows.Forms.Label lbAdres;
+        private System.Windows.Forms.TextBox tbDomain;
+        private System.Windows.Forms.Label lbDomain;
     }
 }
