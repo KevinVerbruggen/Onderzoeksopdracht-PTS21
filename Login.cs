@@ -21,27 +21,10 @@ namespace FileShare
         {
             if (tbGebruikersnaam.TextLength > 0 && tbWachtwoord.TextLength > 0)
             {
-                DataRow inlog = DBconnect.Instantie.SingleSelect("account", "*", "gebruikersnaam = '" + tbGebruikersnaam.Text + "' AND wachtwoord = '" + tbWachtwoord.Text + "'");
 
-                if (inlog != null)
+                if (ActiveDirectory.Authenticate(tbGebruikersnaam.Text, tbWachtwoord.Text, tbAdres.Text))
                 {
-                    if (inlog["soort"].ToString() == "geblokkeerd")
-                    {
-                        MessageBox.Show("Uw account is geblokkeerd.");
-                    }
-                    else
-                    {
-                        //Haal gegevens uit DataRow om localUser te vullen
-                        bool soortAccount = (inlog["soort"].ToString() == "admin") ? true : false;
-                        mainclass.localUser = new User((int)inlog["BezoekerID"], soortAccount);
-                        mainclass.localUser.Admin = (inlog["soort"].ToString() == "admin") ? true : false;
-
-
-                        FileShareForm f = new FileShareForm();
-                        f.UserName = inlog["gebruikersnaam"].ToString();
-                        f.Show();
-                        this.Hide();
-                    }
+                    this.Hide();
                 }
                 else
                 {

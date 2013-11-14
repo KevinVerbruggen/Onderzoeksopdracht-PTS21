@@ -33,11 +33,13 @@
             this.tbWachtwoord = new System.Windows.Forms.TextBox();
             this.lbGebruikersnaam = new System.Windows.Forms.Label();
             this.lbWachtwoord = new System.Windows.Forms.Label();
+            this.tbAdres = new System.Windows.Forms.TextBox();
+            this.lbAdres = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // btnLogin
             // 
-            this.btnLogin.Location = new System.Drawing.Point(182, 99);
+            this.btnLogin.Location = new System.Drawing.Point(182, 112);
             this.btnLogin.Name = "btnLogin";
             this.btnLogin.Size = new System.Drawing.Size(75, 23);
             this.btnLogin.TabIndex = 0;
@@ -78,11 +80,30 @@
             this.lbWachtwoord.TabIndex = 4;
             this.lbWachtwoord.Text = "Wachtwoord";
             // 
+            // tbAdres
+            // 
+            this.tbAdres.Location = new System.Drawing.Point(119, 85);
+            this.tbAdres.Name = "tbAdres";
+            this.tbAdres.PasswordChar = '*';
+            this.tbAdres.Size = new System.Drawing.Size(138, 20);
+            this.tbAdres.TabIndex = 5;
+            // 
+            // lbAdres
+            // 
+            this.lbAdres.AutoSize = true;
+            this.lbAdres.Location = new System.Drawing.Point(13, 88);
+            this.lbAdres.Name = "lbAdres";
+            this.lbAdres.Size = new System.Drawing.Size(34, 13);
+            this.lbAdres.TabIndex = 6;
+            this.lbAdres.Text = "Adres";
+            // 
             // Login
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 147);
+            this.Controls.Add(this.lbAdres);
+            this.Controls.Add(this.tbAdres);
             this.Controls.Add(this.lbWachtwoord);
             this.Controls.Add(this.lbGebruikersnaam);
             this.Controls.Add(this.tbWachtwoord);
@@ -106,5 +127,7 @@
         private System.Windows.Forms.TextBox tbWachtwoord;
         private System.Windows.Forms.Label lbGebruikersnaam;
         private System.Windows.Forms.Label lbWachtwoord;
+        private System.Windows.Forms.TextBox tbAdres;
+        private System.Windows.Forms.Label lbAdres;
     }
 }
